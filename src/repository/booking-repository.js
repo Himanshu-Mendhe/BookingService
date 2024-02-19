@@ -4,7 +4,7 @@ const {Booking} = require('../models/index');
 const { ValidationError, AppError } = require('../utils/errors/index');
 
 class BookingRepository {
-    async create() {
+    async create(data) {
         try {
             const booking = await Booking.create(data);
             return booking;
@@ -13,9 +13,28 @@ class BookingRepository {
                 throw new ValidationError(error);
             }
             throw new AppError(
-                'Repository Error',
+                'RepositoryError',
                 'cannot create booking',
                 'there was some issue creating a booking, please try again later',
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    async update(bookingId, data) {
+        try {
+            const booking = await Booking.findByPk(bookingId);
+            if(data.status){
+                booking.status = data.status
+            }
+            await booking.save();
+            return booking;
+            
+        } catch (error) {
+            throw new AppError(
+                'RepositoryError',
+                'cannot update booking',
+                'there was some issue updating a booking, please try again later',
                 StatusCodes.INTERNAL_SERVER_ERROR
             );
         }
